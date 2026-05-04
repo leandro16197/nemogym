@@ -16,7 +16,7 @@ function Navbar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
+  console.log(user);
   return (
     <nav className="navbar">
       <div className="nav-brand">Nemo<span>Gym</span></div>
@@ -32,7 +32,7 @@ function Navbar() {
             </div>
             <div className="profile-text">
               <span className="profile-name">{user?.nombre || 'Usuario'}</span>
-              <span className="profile-role">{user?.role || 'USER'}</span>
+              <span className="profile-role">{user?.nombrePlan || 'Sin Plan'}</span>
             </div>
             <ChevronDown size={16} className={`chevron ${isOpen ? 'open' : ''}`} />
           </div>

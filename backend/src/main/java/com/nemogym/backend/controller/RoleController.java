@@ -10,6 +10,7 @@ import com.nemogym.backend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class RoleController {
     }
 
     @PostMapping("/assign")
+    @Transactional
     public ResponseEntity<String> assignRole(@RequestBody AssignRoleRequest request) {
 
         User user = userRepository.findById(request.getUserId())
@@ -36,15 +38,11 @@ public class RoleController {
         Role role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Role no existe"));
 
-        if (user.getRoles().contains(role)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("El usuario ya tiene ese rol");
-        }
-
+        user.getRoles().clear();
         user.getRoles().add(role);
         userRepository.save(user);
 
-        return ResponseEntity.ok("Rol asignado correctamente");
+        return ResponseEntity.ok("Rol actualizado correctamente");
     }
 
     @PostMapping("/create")

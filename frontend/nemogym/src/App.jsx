@@ -9,17 +9,20 @@ import ClasesForm from './pages/ClasesForm';
 import ClasesList from './pages/ClasesList';
 import AvisosList from './pages/AvisosList';
 import SociosList from './pages/SociosList';
-import SocioForm from './pages/SocioForm'; // Importar el componente de edición de socios
+import SocioForm from './pages/SocioForm';
+import Register from './pages/Register';
+import Membresias from './pages/Membresias';
+import RolesManager from './pages/RolesManager';
+import ClasesPersonalizadas from './pages/PersonalizadasList'; 
 import CustomToast from './components/CustomToast';
 import './App.css';
 
-// Componente para proteger rutas de Gestión (Admin o Coach)
+
 const AdminRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
   
   if (loading) return <div className="loading-screen">Verificando permisos...</div>;
 
-  // Verificamos si es ADMIN o COACH (ajusta las strings según tu Backend)
   const hasPermission = 
     user?.role === 'ADMIN' || 
     user?.role === 'COACH' || 
@@ -27,6 +30,18 @@ const AdminRoute = ({ children }) => {
     user?.roles?.includes('COACH');
 
   if (!hasPermission) return <Navigate to="/dashboard" replace />;
+  
+  return children;
+};
+
+const OnlyAdminRoute = ({ children }) => {
+  const { user, loading } = useContext(AuthContext);
+  
+  if (loading) return <div className="loading-screen">Verificando nivel de acceso...</div>;
+
+  const isAdmin = user?.role === 'ADMIN' || user?.roles?.includes('ADMIN');
+
+  if (!isAdmin) return <Navigate to="/dashboard" replace />;
   
   return children;
 };
@@ -71,19 +86,29 @@ function App() {
       <CustomToast toast={toast} onClose={() => setToast(null)} />
       <Router>
         <Routes>
+
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> 
           
+
           <Route element={<DashboardLayout />}>
+
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/membresias" element={<Membresias />} />
             <Route path="/clases" element={<AdminRoute><ClasesList /></AdminRoute>} />
             <Route path="/clases/nueva" element={<AdminRoute><ClasesForm /></AdminRoute>} />
             <Route path="/clases/editar/:id" element={<AdminRoute><ClasesForm /></AdminRoute>} />
             <Route path="/avisos" element={<AdminRoute><AvisosList /></AdminRoute>} />
             <Route path="/socios" element={<AdminRoute><SociosList /></AdminRoute>} />
             <Route path="/admin/users/edit/:id" element={<AdminRoute><SocioForm /></AdminRoute>} />
+            <Route path="/clases-personalizadas" element={<AdminRoute><ClasesPersonalizadas /></AdminRoute>} 
+            />
+            <Route path="/roles" element={<OnlyAdminRoute><RolesManager /></OnlyAdminRoute>} />
+
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
+
         </Routes>
       </Router>
     </AuthProvider>

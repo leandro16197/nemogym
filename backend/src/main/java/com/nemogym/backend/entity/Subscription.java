@@ -20,6 +20,7 @@ public class Subscription {
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean active;
+    private String name;
 
     public Subscription() {
     }
@@ -66,5 +67,13 @@ public class Subscription {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

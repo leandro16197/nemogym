@@ -22,6 +22,42 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const verifyPlan = async () => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${API_URL}/auth/me`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+   
+        const updatedUserData = {
+          id: data.id,
+          email: data.email,
+          nombre: data.name,
+          role: data.roles[0], 
+          genero: data.genero,
+          hasActivePlan: data.hasActivePlan,
+          nombrePlan: data.nombrePlan,
+        };
+
+
+        localStorage.setItem('nemogym_user', JSON.stringify(updatedUserData));
+        setUser(updatedUserData);
+        return updatedUserData.hasActivePlan;
+      }
+    } catch (error) {
+      console.error("Error actualizando estado del usuario:", error);
+    }
+  };
+
   const login = async (email, password) => {
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
@@ -39,13 +75,14 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-
       const userData = {
         id: data.user.id,
         email: data.user.email,
         nombre: data.user.name,
         role: data.user.roles[0], 
-        genero: data.user.genero 
+        genero: data.user.genero,
+        hasActivePlan: data.user.hasActivePlan || false,
+        nombrePlan: data.user.nombrePlan
       };
 
       localStorage.setItem('nemogym_token', data.token);
@@ -69,7 +106,8 @@ export const AuthProvider = ({ children }) => {
   const getToken = () => localStorage.getItem('nemogym_token');
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, getToken }}>
+
+    <AuthContext.Provider value={{ user, login, logout, loading, getToken, verifyPlan }}>
       {!loading && children}
     </AuthContext.Provider>
   );

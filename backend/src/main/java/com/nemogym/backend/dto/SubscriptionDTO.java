@@ -1,8 +1,7 @@
 package com.nemogym.backend.dto;
 
 import java.time.LocalDate;
-
-import com.nemogym.backend.entity.Plan;
+import java.util.stream.Collectors;
 import com.nemogym.backend.entity.Subscription;
 
 public class SubscriptionDTO {
@@ -11,15 +10,20 @@ public class SubscriptionDTO {
     private boolean active;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Plan plan;
+    private String planNombre;
     private UserDTO user;
 
     public SubscriptionDTO(Subscription sub) {
+        System.out.println("Creando SubscriptionDTO para suscripción ID: " + sub.getId());
         this.id = sub.getId();
         this.active = sub.isActive();
         this.startDate = sub.getStartDate();
         this.endDate = sub.getEndDate();
-        this.plan = sub.getPlan();
+
+        this.planNombre = (sub.getPlan() != null)
+                ? sub.getPlan().getName()
+                : null;
+
         this.user = new UserDTO(
                 sub.getUser().getId(),
                 sub.getUser().getEmail(),
@@ -27,8 +31,10 @@ public class SubscriptionDTO {
                 sub.getUser().getRoles()
                         .stream()
                         .map(role -> role.getName())
-                        .collect(java.util.stream.Collectors.toSet()),
-                sub.getUser().getGenero());
+                        .collect(Collectors.toSet()),
+                sub.getUser().getGenero(),
+                sub.isActive(),
+                this.planNombre);
     }
 
     public Long getId() {
@@ -47,12 +53,11 @@ public class SubscriptionDTO {
         return endDate;
     }
 
-    public Plan getPlan() {
-        return plan;
+    public String getPlanNombre() {
+        return planNombre;
     }
 
     public UserDTO getUser() {
         return user;
     }
-
 }

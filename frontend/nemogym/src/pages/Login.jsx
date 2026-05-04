@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { LogIn, Mail, Lock, Loader2, UserPlus } from 'lucide-react';
 import heroImg from '../assets/hero.png';
 
 function Login() {
@@ -12,7 +12,6 @@ function Login() {
   
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     if (user) navigate('/dashboard');
@@ -84,6 +83,23 @@ function Login() {
         </form>
 
         <footer className="auth-footer">
+          <div className="register-prompt" style={{ marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
+            <p>¿No tienes cuenta?</p>
+            <Link to="/register" className="auth-button-secondary" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '8px',
+              textDecoration: 'none',
+              marginTop: '5px',
+              color: 'var(--primary-color)',
+              fontWeight: '600'
+            }}>
+              <UserPlus size={18} />
+              Registrarse ahora
+            </Link>
+          </div>
+
           <p>¿Problemas técnicos? <a href="#">Soporte</a></p>
         </footer>
       </div>

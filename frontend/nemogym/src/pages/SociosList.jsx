@@ -8,37 +8,51 @@ function SociosList() {
   const navigate = useNavigate();
 
   const [socios, setSocios] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-
   const [search, setSearch] = useState('');
   const [genero, setGenero] = useState('');
-
+  const [rolId, setRolId] = useState('');
 
   const [showModal, setShowModal] = useState(false);
   const [socioAEliminar, setSocioAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
 
- 
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchSocios(page);
-    }, 400); 
-
+    }, 400);
     return () => clearTimeout(timer);
-  }, [page, search, genero]);
+  }, [page, search, genero, rolId]);
+
+  const fetchRoles = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/roles`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      const data = await res.json();
+      setRoles(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error cargando roles:", err);
+    }
+  };
 
   const fetchSocios = async (pageNumber, silent = false) => {
     if (!silent) setLoading(true);
     try {
-
       const url = new URL(`${import.meta.env.VITE_API_URL}/admin/users`);
       url.searchParams.append('page', pageNumber);
       url.searchParams.append('size', 10);
       if (search) url.searchParams.append('search', search);
       if (genero) url.searchParams.append('genero', genero);
+      if (rolId) url.searchParams.append('roleId', rolId);
 
       const res = await fetch(url, {
         headers: {
@@ -51,16 +65,36 @@ function SociosList() {
       setTotalPages(json.totalPages || 0);
     } catch (err) {
       console.error("Error cargando socios:", err);
-      window.appCustom.smallBox('nok', 'Error al cargar socios');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleAssignRole = async (userId, newRoleId) => {
+    if (!newRoleId) return;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/roles/assign`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, roleId: newRoleId })
+      });
+
+      if (res.ok) {
+        window.appCustom.smallBox('ok', 'Rol actualizado correctamente');
+        fetchSocios(page, true);
+      } else {
+        window.appCustom.smallBox('nok', 'Error al asignar el rol');
+      }
+    } catch (err) {
+      window.appCustom.smallBox('nok', 'Error de conexión');
+    }
+  };
+
   const limpiarFiltros = () => {
-    setSearch('');
-    setGenero('');
-    setPage(0);
+    setSearch(''); setGenero(''); setRolId(''); setPage(0);
   };
 
   const abrirConfirmacion = (socio) => {
@@ -76,23 +110,19 @@ function SociosList() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${getToken()}` }
       });
-
       if (res.ok) {
         window.appCustom.smallBox('ok', 'Socio eliminado correctamente');
         setShowModal(false);
-        setSocioAEliminar(null);
         fetchSocios(page, true);
-      } else {
-        window.appCustom.smallBox('nok', 'No se pudo eliminar el socio');
       }
     } catch (err) {
-      window.appCustom.smallBox('nok', 'Error de red al eliminar');
+      window.appCustom.smallBox('nok', 'Error al eliminar');
     } finally {
       setEliminando(false);
     }
   };
 
-  if (loading && socios.length === 0 && !search && !genero) {
+  if (loading && socios.length === 0 && !search && !genero && !rolId) {
     return (
       <div className="loading-full-container">
         <Loader2 className="spinner-icon" size={48} />
@@ -109,12 +139,13 @@ function SociosList() {
           <h2 className="section-title">Socios</h2>
         </div>
       </div>
+
       <div className="filters-bar">
         <div className="search-input-container">
           <Search size={16} className="search-icon" />
-          <input 
-            type="text" 
-            placeholder="Buscar por nombre o email..." 
+          <input
+            type="text"
+            placeholder="Buscar por nombre o email..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             className="minimal-input"
@@ -122,22 +153,21 @@ function SociosList() {
           {search && <X size={14} className="clear-icon" onClick={() => setSearch('')} />}
         </div>
 
-        <select 
-          className="minimal-select"
-          value={genero}
-          onChange={(e) => { setGenero(e.target.value); setPage(0); }}
-        >
+        <select className="minimal-select" value={genero} onChange={(e) => { setGenero(e.target.value); setPage(0); }}>
           <option value="">Todos los géneros</option>
           <option value="HOMBRE">Hombre</option>
           <option value="MUJER">Mujer</option>
           <option value="OTRO">Otro</option>
         </select>
 
-        {(search || genero) && (
-          <button className="btn-text-only" onClick={limpiarFiltros}>
-            Limpiar filtros
-          </button>
-        )}
+        <select className="minimal-select" value={rolId} onChange={(e) => { setRolId(e.target.value); setPage(0); }}>
+          <option value="">Todos los roles</option>
+          {roles.map(rol => (
+            <option key={rol.id} value={rol.id.toString()}>{rol.nombre || rol.name}</option>
+          ))}
+        </select>
+
+        {(search || genero || rolId) && <button className="btn-text-only" onClick={limpiarFiltros}>Limpiar</button>}
       </div>
 
       <div className="table-wrapper">
@@ -146,36 +176,57 @@ function SociosList() {
             <tr>
               <th>Nombre</th>
               <th>Email</th>
-              <th>Género</th>
+              <th>Rol</th>
               <th style={{ textAlign: 'center' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {socios.length > 0 ? (
-              socios.map((s) => (
-                <tr key={s.id}>
-                  <td>{s.name || '-'}</td>
-                  <td>{s.email}</td>
-                  <td>{s.genero || '-'}</td>
-                  <td style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                    <button 
-                      onClick={() => navigate(`/admin/users/edit/${s.id}`)} 
-                      className="btn-action-view"
-                    >
-                      <Pencil size={18} />
-                    </button>
+              socios.map((s) => {
+                // TRADUCCIÓN DE NOMBRE DE ROL A ID
+                // Buscamos el string (ej: "ADMIN") dentro de nuestra lista de objetos de roles
+                const userRoleName = Array.isArray(s.roles) ? s.roles[0] : null;
+                const matchingRole = roles.find(r => 
+                  (r.name?.toUpperCase() === userRoleName?.toUpperCase()) || 
+                  (r.nombre?.toUpperCase() === userRoleName?.toUpperCase())
+                );
+                
+                // Si encontramos el rol, usamos su ID, si no, string vacío
+                const currentRoleId = matchingRole ? matchingRole.id.toString() : "";
 
-                    {user?.id !== s.id && (
-                      <button 
-                        onClick={() => abrirConfirmacion(s)} 
-                        className="btn-action-delete"
+                return (
+                  <tr key={s.id}>
+                    <td>{s.name || '-'}</td>
+                    <td>{s.email}</td>
+                    <td>
+                      <select
+                        className="minimal-select"
+                        style={{ padding: '4px 8px', width: 'auto' }}
+                        value={currentRoleId}
+                        onChange={(e) => handleAssignRole(s.id, e.target.value)}
+                        disabled={user?.id === s.id}
                       >
-                        <Trash2 size={18} />
+                        <option value="" disabled>Seleccionar Rol</option>
+                        {roles.map(rol => (
+                          <option key={rol.id} value={rol.id.toString()}>
+                            {rol.nombre || rol.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                      <button onClick={() => navigate(`/admin/users/edit/${s.id}`)} className="btn-action-view">
+                        <Pencil size={18} />
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))
+                      {user?.id !== s.id && (
+                        <button onClick={() => abrirConfirmacion(s)} className="btn-action-delete">
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr><td colSpan="4" className="empty-state">No se encontraron socios</td></tr>
             )}
@@ -196,9 +247,7 @@ function SociosList() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <div className="modal-icon-warning">
-              <AlertTriangle size={48} color="#ef4444" />
-            </div>
+            <div className="modal-icon-warning"><AlertTriangle size={48} color="#ef4444" /></div>
             <h3>¿Eliminar socio?</h3>
             <p>Estás a punto de eliminar a <strong>{socioAEliminar?.name || socioAEliminar?.email}</strong>.</p>
             <div className="modal-actions">
