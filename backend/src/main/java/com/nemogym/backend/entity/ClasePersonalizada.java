@@ -22,7 +22,11 @@ public class ClasePersonalizada {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    private Integer repeticiones;
+
     private LocalDate fecha;
+
+    private Integer dia;
 
     public ClasePersonalizada() {
     }
@@ -47,6 +51,10 @@ public class ClasePersonalizada {
         return descripcion;
     }
 
+    public Integer getRepeticiones() {
+        return repeticiones;
+    }
+
     public LocalDate getFecha() {
         return fecha;
     }
@@ -67,7 +75,19 @@ public class ClasePersonalizada {
         this.descripcion = descripcion;
     }
 
+    public void setRepeticiones(Integer repeticiones) {
+        this.repeticiones = repeticiones;
+    }
+
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
+    }
+
+    public Integer getDia() {
+        return dia;
+    }
+
+    public void setDia(Integer dia) {
+        this.dia = dia;
     }
 }

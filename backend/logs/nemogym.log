@@ -1,0 +1,2 @@
+2026-05-19T12:21:17.819-03:00  INFO 7692 --- [backend] [restartedMain] com.nemogym.backend.BackendApplication   : Starting BackendApplication using Java 17.0.18 with PID 7692 (C:\Users\Usuario\Downloads\Proyectos\nemoGym\backend\target\classes started by Usuario in C:\Users\Usuario\Downloads\Proyectos\nemoGym\backend)
+2026-05-19T12:21:17.831-03:00  INFO 7692 --- [backend] [restartedMain] com.nemogym.backend.BackendApplication   : No active profile set, falling back to 1 default profile: "default"

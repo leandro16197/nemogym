@@ -58,6 +58,8 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/membresias/**")
                                                 .hasAnyRole("USER", "ADMIN", "COACH")
                                                 .requestMatchers("/membresias/**").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/clases-personalizadas/**")
+                                                .hasAnyRole("ADMIN", "COACH")
                                                 .requestMatchers("/admin/users/aptos-personalizada")
                                                 .hasAnyRole("ADMIN", "COACH")
                                                 .requestMatchers("/admin/users/**").hasRole("ADMIN")

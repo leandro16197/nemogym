@@ -67,4 +67,25 @@ public class RoleController {
         return ResponseEntity.ok(roleRepository.findAll());
     }
 
+    @DeleteMapping("/delete/{id}")
+    @Transactional
+    public ResponseEntity<ApiResponse> deleteRole(@PathVariable Long id) {
+        Optional<Role> roleOptional = roleRepository.findById(id);
+
+        if (roleOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse(false, "El rol no existe"));
+        }
+
+        try {
+            roleRepository.deleteById(id);
+            return ResponseEntity.ok(
+                    new ApiResponse(true, "Rol eliminado correctamente"));
+        } catch (Exception e) {
+            // Esto captura errores si el rol está siendo usado por usuarios (llave foránea)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse(false, "No se puede eliminar el rol porque está asignado a usuarios"));
+        }
+    }
+
 }

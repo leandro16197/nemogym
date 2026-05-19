@@ -1,8 +1,8 @@
 import { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { LogOut, ChevronDown, Settings, User, Shield } from 'lucide-react';
+import { LogOut, ChevronDown, Settings, Menu } from 'lucide-react';
 
-function Navbar() {
+function Navbar({ toggleSidebar }) { 
   const { user, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -16,10 +16,21 @@ function Navbar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  console.log(user);
+
   return (
     <nav className="navbar">
-      <div className="nav-brand">Nemo<span>Gym</span></div>
+      <div className="nav-left">
+        {/* BOTÓN HAMBURGUESA: Visible solo en móviles */}
+        <button 
+          className="mobile-menu-btn" 
+          onClick={toggleSidebar}
+          aria-label="Abrir menú"
+        >
+          <Menu size={24} />
+        </button>
+
+        <div className="nav-brand">Nemo<span>Gym</span></div>
+      </div>
 
       <div className="nav-right">
         <div className="profile-container" ref={dropdownRef}>

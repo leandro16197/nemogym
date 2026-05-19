@@ -1,14 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Home, 
-  Users, 
-  Calendar, 
-  BarChart3, 
-  Settings as SettingsIcon, 
-  Megaphone, 
-  CreditCard, 
-  ShieldCheck,
-  Star
+  Home, Users, Calendar, BarChart3, 
+  Settings as SettingsIcon, Megaphone, 
+  CreditCard, ShieldCheck, Star
 } from 'lucide-react';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
@@ -19,44 +13,32 @@ function Sidebar({ isOpen, closeSidebar }) {
 
   const isAdmin = user?.role === 'ADMIN' || user?.roles?.includes('ADMIN');
   const isCoach = user?.role === 'COACH' || user?.roles?.includes('COACH');
+  const isStaff = isAdmin || isCoach;
   
-  const hasFullPlan = user?.nombrePlan && user?.nombrePlan.toUpperCase() === 'FULL';
-
+  const userPlan = (user?.nombrePlan || user?.plan || "").toUpperCase();
+  const hasFullPlan = userPlan.includes('FULL');
   const menuItems = [
     { icon: <Home size={20} />, label: 'Inicio', path: '/dashboard' },
-    
-    ...(isAdmin ? [
-      { icon: <Users size={20} />, label: 'Socios', path: '/socios' }
-    ] : []),
-    
-    { icon: <Calendar size={20} />, label: 'Clases', path: '/clases' },
-    
-    ...(!isAdmin && !isCoach && hasFullPlan ? [
+    { icon: <CreditCard size={20} />, label: 'Membresía', path: '/membresias' },
+    ...(!isStaff && hasFullPlan ? [
       { 
         icon: <Star size={20} className="text-yellow-400" />, 
         label: 'Mis Personalizadas', 
-        path: `/clases-personalizadas/${user?.id}` 
+        path: '/clases-personalizadas' 
       }
     ] : []),
-
-    ...(isAdmin || isCoach ? [
+    ...(isStaff ? [
       { 
         icon: <Star size={20} className="text-yellow-400" />, 
         label: 'Personalizadas', 
-        path: `/clases-personalizadas` 
-      }
+        path: '/clases-personalizadas' 
+      },
+      { icon: <Megaphone size={20} />, label: 'Avisos', path: '/avisos' },
+      { icon: <Calendar size={20} />, label: 'Clases', path: '/clases' }
     ] : []),
     ...(isAdmin ? [
-      { icon: <CreditCard size={20} />, label: 'Membresía', path: '/membresias' }
-    ] : []),
-    ...(isAdmin ? [
-      { icon: <ShieldCheck size={20} />, label: 'Roles', path: '/roles' }
-    ] : []),
-    ...(isAdmin || isCoach ? [
-      { icon: <Megaphone size={20} />, label: 'Avisos', path: '/avisos' }
-    ] : []),
-
-    ...(isAdmin ? [
+      { icon: <Users size={20} />, label: 'Socios', path: '/socios' },
+      { icon: <ShieldCheck size={20} />, label: 'Roles', path: '/roles' },
       { icon: <BarChart3 size={20} />, label: 'Reportes', path: '/reportes' }
     ] : []),
   ];

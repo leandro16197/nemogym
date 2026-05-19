@@ -1,117 +1,99 @@
-import { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Plus, User as UserIcon, Loader2, CheckCircle, Mail } from 'lucide-react';
+import { User as UserIcon, Loader2, Star } from 'lucide-react';
+import ModalAsignarRutina from '../components/ModalAsignarRutina';
+import UserRutinaTable from '../components/UserRutinaTable'; 
+import AdminSocioList from '../components/AdminSocioList';   
 
 function PersonalizadasList() {
-  const { getToken, user } = useContext(AuthContext);
-  const navigate = useNavigate();
-  
-  const [loading, setLoading] = useState(true);
-  const [lista, setLista] = useState([]);
+    const { getToken, user: currentUser } = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState([]); 
+    const [selectedUser, setSelectedUser] = useState(null);
 
-  const isStaff = user?.role === 'ADMIN' || user?.role === 'COACH';
+    const isAdminOrCoach = currentUser?.role === 'ADMIN' || currentUser?.role === 'COACH';
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/users/aptos-personalizada`, {
-        headers: { 
-          "Authorization": `Bearer ${getToken()}`,
-          "Content-Type": "application/json"
+    const fetchData = useCallback(async (isSilent = false) => {
+        if (!isSilent) {
+            setLoading(true);
+            setData([]);
         }
-      });
 
-      if (!res.ok) {
-        throw new Error(`Error ${res.status}: No se pudo obtener la lista de socios`);
-      }
+        const endpoint = isAdminOrCoach 
+            ? `/admin/users/aptos-personalizada` 
+            : `/coach/clases-personalizadas/${currentUser?.id}`;
 
-      const data = await res.json();
-      console.log("Socios aptos recibidos:", data);
-      
-      setLista(Array.isArray(data) ? data : data.data || []);
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, {
+                headers: { "Authorization": `Bearer ${getToken()}` }
+            });
+            const result = await res.json();
+            const finalData = Array.isArray(result) ? result : (result.data || []);
+            
+            if (isAdminOrCoach) {
+                setData(finalData);
+            } else {
+                setData([...finalData].sort((a, b) => a.dia - b.dia));
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            if (!isSilent) setData([]);
+        } finally { 
+            setLoading(false); 
+        }
+    }, [isAdminOrCoach, currentUser?.id, getToken]);
 
-    } catch (error) {
-      console.error("Error al cargar socios:", error);
-      setLista([]); 
-    } finally {
-      setLoading(false);
-    }
-  };
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
-  if (loading) return <div className="loading-full-container"><Loader2 className="spinner-icon" size={48} /></div>;
+    if (loading) return (
+        <div className="loading-full-container">
+            <Loader2 className="spinner-icon" size={48} />
+            <p style={{marginTop: '10px', color: '#94a3b8'}}>Actualizando información...</p>
+        </div>
+    );
 
-  return (
-    <div className="clases-manager-container">
-      <div className="section-header-list" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 className="section-title" style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <UserIcon className="primary-color" /> 
-          Socios con Plan Full (Aptos para Clase Personalizada)
-        </h2>
-      </div>
+    return (
+        <div className="personalizadas-container">
+            <div className="header-wrapper">
+                <h2>
+                    <div className="icon-box">
+                        {isAdminOrCoach ? <UserIcon size={20} /> : <Star size={20} className="text-yellow-400" />}
+                    </div>
+                    {isAdminOrCoach ? 'Gestión de Clases' : 'Mi Entrenamiento'}
+                </h2>
+                <p>
+                    {isAdminOrCoach 
+                        ? 'Asigna y modifica rutinas para socios con Plan Full.' 
+                        : 'Tu plan de entrenamiento personalizado por el Coach.'}
+                </p>
+            </div>
 
-      <div className="table-wrapper">
-        <table className="routine-table">
-          <thead>
-            <tr>
-              <th>Nombre del Socio</th>
-              <th>Email</th>
-              <th>Estado Membresía</th>
-              <th style={{ textAlign: 'center' }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lista.length > 0 ? lista.map((socio) => (
-              <tr key={socio.id}>
-                <td style={{ fontWeight: '600' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <UserIcon size={16} className="primary-color" />
-                    {socio.name}
-                  </div>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Mail size={14} /> {socio.email}
-                  </div>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#10b981' }}>
-                    <CheckCircle size={14} /> {socio.nombrePlan || 'Full Active'}
-                  </div>
-                </td>
-                <td style={{ textAlign: 'center' }}>
-                  <button 
-                    className="btn-save" 
-                    onClick={() => navigate(`/clases-personalizadas/nueva?userId=${socio.id}`)}
-                    style={{ 
-                      padding: '6px 12px', 
-                      fontSize: '0.85rem', 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      gap: '5px' 
-                    }}
-                  >
-                    <Plus size={16} /> Asignar Rutina
-                  </button>
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan={4} style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
-                  No se encontraron socios con membresía Full activa.
-                </td>
-              </tr>
+            {isAdminOrCoach ? (
+                <AdminSocioList socios={data} onGestionar={setSelectedUser} />
+            ) : (
+                <UserRutinaTable rutinas={data} />
             )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+
+            {selectedUser && (
+                <ModalAsignarRutina 
+                    socio={selectedUser} 
+                    getToken={getToken}
+                    onClose={() => setSelectedUser(null)}
+                    onSuccess={(isSilentUpdate = false) => {
+                        if (isSilentUpdate) {
+                            fetchData(true); 
+                        } else {
+  
+                            setSelectedUser(null);
+                            fetchData();
+                        }
+                    }}
+                />
+            )}
+        </div>
+    );
 }
 
 export default PersonalizadasList;

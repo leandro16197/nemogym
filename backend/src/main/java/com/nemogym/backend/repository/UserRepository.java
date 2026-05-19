@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
         Optional<User> findByEmail(String email);
 
-        @Query("SELECT u FROM User u JOIN u.roles r WHERE " +
+        @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.roles r WHERE " +
                         "(:search IS NULL OR :search = '' OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))) AND "
                         +
                         "(:genero IS NULL OR :genero = '' OR u.genero = :genero) AND " +

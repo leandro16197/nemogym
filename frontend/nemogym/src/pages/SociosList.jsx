@@ -1,10 +1,10 @@
 import { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Users, Loader2, ChevronLeft, ChevronRight, Pencil, Trash2, AlertTriangle, Search, X } from 'lucide-react';
+import { Users, Loader2, ChevronLeft, ChevronRight, Pencil, Trash2, AlertTriangle, Search, X, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function SociosList() {
-  const { getToken, user } = useContext(AuthContext);
+  const { getToken, user: currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [socios, setSocios] = useState([]);
@@ -21,14 +21,10 @@ function SociosList() {
   const [socioAEliminar, setSocioAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
+  useEffect(() => { fetchRoles(); }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchSocios(page);
-    }, 400);
+    const timer = setTimeout(() => { fetchSocios(page); }, 400);
     return () => clearTimeout(timer);
   }, [page, search, genero, rolId]);
 
@@ -39,9 +35,7 @@ function SociosList() {
       });
       const data = await res.json();
       setRoles(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Error cargando roles:", err);
-    }
+    } catch (err) { console.error("Error roles:", err); }
   };
 
   const fetchSocios = async (pageNumber, silent = false) => {
@@ -55,55 +49,30 @@ function SociosList() {
       if (rolId) url.searchParams.append('roleId', rolId);
 
       const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-          Accept: "application/json"
-        }
+        headers: { Authorization: `Bearer ${getToken()}`, Accept: "application/json" }
       });
       const json = await res.json();
       setSocios(json.data || []);
       setTotalPages(json.totalPages || 0);
-    } catch (err) {
-      console.error("Error cargando socios:", err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error("Error socios:", err); }
+    finally { setLoading(false); }
   };
 
   const handleAssignRole = async (userId, newRoleId) => {
-    if (!newRoleId) return;
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/roles/assign`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${getToken()}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, roleId: newRoleId })
       });
-
       if (res.ok) {
-        window.appCustom.smallBox('ok', 'Rol actualizado correctamente');
+        window.appCustom.smallBox('ok', 'Rol actualizado');
         fetchSocios(page, true);
-      } else {
-        window.appCustom.smallBox('nok', 'Error al asignar el rol');
       }
-    } catch (err) {
-      window.appCustom.smallBox('nok', 'Error de conexión');
-    }
-  };
-
-  const limpiarFiltros = () => {
-    setSearch(''); setGenero(''); setRolId(''); setPage(0);
-  };
-
-  const abrirConfirmacion = (socio) => {
-    setSocioAEliminar(socio);
-    setShowModal(true);
+    } catch (err) { window.appCustom.smallBox('nok', 'Error de conexión'); }
   };
 
   const confirmarEliminacion = async () => {
-    if (!socioAEliminar) return;
     setEliminando(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/users/${socioAEliminar.id}`, {
@@ -111,149 +80,139 @@ function SociosList() {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       if (res.ok) {
-        window.appCustom.smallBox('ok', 'Socio eliminado correctamente');
+        window.appCustom.smallBox('ok', 'Socio eliminado');
         setShowModal(false);
         fetchSocios(page, true);
       }
-    } catch (err) {
-      window.appCustom.smallBox('nok', 'Error al eliminar');
-    } finally {
-      setEliminando(false);
-    }
+    } finally { setEliminando(false); }
   };
 
-  if (loading && socios.length === 0 && !search && !genero && !rolId) {
-    return (
-      <div className="loading-full-container">
-        <Loader2 className="spinner-icon" size={48} />
-        <p>Cargando socios...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="form-container">
-      <div className="section-header-list" style={{ marginBottom: '15px' }}>
-        <div className="title-group">
-          <Users size={28} className="primary-color" />
-          <h2 className="section-title">Socios</h2>
+    <div className="personalizadas-container"> {/* Contenedor principal para margen y padding */}
+      <div className="header-wrapper">
+        <h2>
+          <div className="icon-box"><Users size={20} /></div>
+          Administración de Socios
+        </h2>
+        <p>Gestiona los permisos, perfiles y estados de los miembros del gimnasio.</p>
+      </div>
+
+      <div className="list-card admin-socios-dark">
+        <div className="table-controls">
+          <div className="search-box">
+            <Search size={18} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre o email..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+            />
+            {search && <X size={16} className="clear-icon" onClick={() => setSearch('')} />}
+          </div>
+
+          <div className="filters-right-group" style={{ display: 'flex', gap: '10px' }}>
+            <select value={genero} onChange={(e) => { setGenero(e.target.value); setPage(0); }}>
+              <option value="">Géneros</option>
+              <option value="HOMBRE">Hombre</option>
+              <option value="MUJER">Mujer</option>
+            </select>
+
+            <select value={rolId} onChange={(e) => { setRolId(e.target.value); setPage(0); }}>
+              <option value="">Todos los roles</option>
+              {roles.map(rol => (
+                <option key={rol.id} value={rol.id.toString()}>{rol.nombre || rol.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="table-container-scroll">
+          <table className="routine-table">
+            <thead>
+              <tr>
+                <th>SOCIO</th>
+                <th>EMAIL</th>
+                <th>ROL</th>
+                <th style={{ textAlign: 'right' }}>ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="4" className="no-results"><Loader2 className="spinning" /> Cargando...</td></tr>
+              ) : socios.length > 0 ? (
+                socios.map((s) => {
+                  const userRoleName = Array.isArray(s.roles) ? s.roles[0] : null;
+                  const matchingRole = roles.find(r => 
+                    (r.name?.toUpperCase() === userRoleName?.toUpperCase()) || 
+                    (r.nombre?.toUpperCase() === userRoleName?.toUpperCase())
+                  );
+                  return (
+                    <tr key={s.id}>
+                      <td><div className="socio-name">{s.name || '-'}</div></td>
+                      <td>
+                        <div className="socio-email">
+                          <Mail size={14} /> {s.email}
+                        </div>
+                      </td>
+                      <td>
+                        <select
+                          className="table-select-rol"
+                          value={matchingRole ? matchingRole.id.toString() : ""}
+                          onChange={(e) => handleAssignRole(s.id, e.target.value)}
+                          disabled={currentUser?.id === s.id}
+                        >
+                          {roles.map(rol => (
+                            <option key={rol.id} value={rol.id.toString()}>{rol.nombre || rol.name}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="actions-cell-group" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                          <button onClick={() => navigate(`/admin/users/edit/${s.id}`)} className="btn-icon-edit" title="Editar">
+                            <Pencil size={18} />
+                          </button>
+                          {currentUser?.id !== s.id && (
+                            <button onClick={() => { setSocioAEliminar(s); setShowModal(true); }} className="btn-icon-delete" title="Eliminar">
+                              <Trash2 size={18} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr><td colSpan="4" className="no-results">No se encontraron socios</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="table-footer">
+          <div className="info">Página {page + 1} de {totalPages || 1}</div>
+          <div className="pagination-controls">
+            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="page-btn">
+              <ChevronLeft size={18} />
+            </button>
+            <span className="page-indicator">{page + 1}</span>
+            <button disabled={page >= totalPages - 1 || totalPages === 0} onClick={() => setPage(p => p + 1)} className="page-btn">
+              <ChevronRight size={18} />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="filters-bar">
-        <div className="search-input-container">
-          <Search size={16} className="search-icon" />
-          <input
-            type="text"
-            placeholder="Buscar por nombre o email..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-            className="minimal-input"
-          />
-          {search && <X size={14} className="clear-icon" onClick={() => setSearch('')} />}
-        </div>
-
-        <select className="minimal-select" value={genero} onChange={(e) => { setGenero(e.target.value); setPage(0); }}>
-          <option value="">Todos los géneros</option>
-          <option value="HOMBRE">Hombre</option>
-          <option value="MUJER">Mujer</option>
-          <option value="OTRO">Otro</option>
-        </select>
-
-        <select className="minimal-select" value={rolId} onChange={(e) => { setRolId(e.target.value); setPage(0); }}>
-          <option value="">Todos los roles</option>
-          {roles.map(rol => (
-            <option key={rol.id} value={rol.id.toString()}>{rol.nombre || rol.name}</option>
-          ))}
-        </select>
-
-        {(search || genero || rolId) && <button className="btn-text-only" onClick={limpiarFiltros}>Limpiar</button>}
-      </div>
-
-      <div className="table-wrapper">
-        <table className="routine-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Rol</th>
-              <th style={{ textAlign: 'center' }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {socios.length > 0 ? (
-              socios.map((s) => {
-                // TRADUCCIÓN DE NOMBRE DE ROL A ID
-                // Buscamos el string (ej: "ADMIN") dentro de nuestra lista de objetos de roles
-                const userRoleName = Array.isArray(s.roles) ? s.roles[0] : null;
-                const matchingRole = roles.find(r => 
-                  (r.name?.toUpperCase() === userRoleName?.toUpperCase()) || 
-                  (r.nombre?.toUpperCase() === userRoleName?.toUpperCase())
-                );
-                
-                // Si encontramos el rol, usamos su ID, si no, string vacío
-                const currentRoleId = matchingRole ? matchingRole.id.toString() : "";
-
-                return (
-                  <tr key={s.id}>
-                    <td>{s.name || '-'}</td>
-                    <td>{s.email}</td>
-                    <td>
-                      <select
-                        className="minimal-select"
-                        style={{ padding: '4px 8px', width: 'auto' }}
-                        value={currentRoleId}
-                        onChange={(e) => handleAssignRole(s.id, e.target.value)}
-                        disabled={user?.id === s.id}
-                      >
-                        <option value="" disabled>Seleccionar Rol</option>
-                        {roles.map(rol => (
-                          <option key={rol.id} value={rol.id.toString()}>
-                            {rol.nombre || rol.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                      <button onClick={() => navigate(`/admin/users/edit/${s.id}`)} className="btn-action-view">
-                        <Pencil size={18} />
-                      </button>
-                      {user?.id !== s.id && (
-                        <button onClick={() => abrirConfirmacion(s)} className="btn-action-delete">
-                          <Trash2 size={18} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr><td colSpan="4" className="empty-state">No se encontraron socios</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="pagination-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', gap: '10px' }}>
-        <button onClick={() => setPage(p => Math.max(p - 1, 0))} disabled={page === 0} className="btn-action-view">
-          <ChevronLeft size={18} />
-        </button>
-        <span>Página {page + 1} de {totalPages || 1}</span>
-        <button onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))} disabled={page >= totalPages - 1 || totalPages === 0} className="btn-action-view">
-          <ChevronRight size={18} />
-        </button>
-      </div>
-
+      {/* Modal Confirmación */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-icon-warning"><AlertTriangle size={48} color="#ef4444" /></div>
+        <div className="modal-dark-overlay">
+          <div className="modal-dark-card">
+            <AlertTriangle size={40} className="text-yellow-400" />
             <h3>¿Eliminar socio?</h3>
-            <p>Estás a punto de eliminar a <strong>{socioAEliminar?.name || socioAEliminar?.email}</strong>.</p>
-            <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setShowModal(false)} disabled={eliminando}>Cancelar</button>
-              <button className="btn-confirm-delete" onClick={confirmarEliminacion} disabled={eliminando}>
-                {eliminando ? <Loader2 className="spinner-icon" size={18} /> : "Eliminar Socio"}
+            <p>Estás a punto de eliminar a <strong>{socioAEliminar?.name}</strong>.</p>
+            <div className="modal-dark-actions">
+              <button className="btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
+              <button className="btn-danger" onClick={confirmarEliminacion} disabled={eliminando}>
+                {eliminando ? "Eliminando..." : "Eliminar"}
               </button>
             </div>
           </div>
