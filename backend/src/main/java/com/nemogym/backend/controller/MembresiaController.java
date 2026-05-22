@@ -18,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/membresias")
-@CrossOrigin(origins = "${app.cors.origin}")
 public class MembresiaController {
 
     @Autowired

@@ -3,9 +3,9 @@ package com.nemogym.backend.controller;
 import com.nemogym.backend.dto.ApiResponse;
 import com.nemogym.backend.dto.ClaseRequest;
 import com.nemogym.backend.entity.Clase;
-import com.nemogym.backend.entity.User; // Import para User
+import com.nemogym.backend.entity.User;
 import com.nemogym.backend.repository.ClaseRepository;
-import com.nemogym.backend.repository.UserRepository; // Import para UserRepository
+import com.nemogym.backend.repository.UserRepository;
 import com.nemogym.backend.services.ClaseService;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication; // Import para Authentication
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

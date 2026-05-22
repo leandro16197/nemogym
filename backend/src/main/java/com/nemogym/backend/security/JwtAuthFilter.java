@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,11 +27,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-
-    protected void doFilterInternal(HttpServletRequest request,
+    protected void doFilterInternal(
+            HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -41,32 +45,38 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7);
-
         try {
+            String token = authHeader.substring(7);
+
             Claims claims = jwtService.extractAllClaims(token);
 
             String email = claims.getSubject();
+
             List<String> roles = claims.get("roles", List.class);
 
-            if (email != null && roles != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .toList();
 
-                List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                        .toList();
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null,
+                    authorities);
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null,
-                        authorities);
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request));
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+            SecurityContextHolder.getContext().setAuthentication(authToken);
 
         } catch (Exception e) {
-
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+
+        return path.equals("/mercadopago/webhook");
     }
 }

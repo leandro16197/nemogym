@@ -69,8 +69,7 @@ function Sidebar({ isOpen, closeSidebar }) {
                 className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`} 
                 onClick={closeSidebar}
               >
-                <SettingsIcon size={20} />
-                <span>Ajustes</span>
+              
               </Link>
             )}
           </div>

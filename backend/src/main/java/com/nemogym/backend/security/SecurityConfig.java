@@ -1,6 +1,5 @@
 package com.nemogym.backend.security;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,74 +19,78 @@ public class SecurityConfig {
 
         private final JwtAuthFilter jwtAuthFilter;
         private final CustomAccessDeniedHandler customAccessDeniedHandler;
-        @Value("${app.cors.origin}")
-        private String corsOrigin;
 
-        public SecurityConfig(JwtAuthFilter jwtAuthFilter,
+        public SecurityConfig(
+                        JwtAuthFilter jwtAuthFilter,
                         CustomAccessDeniedHandler customAccessDeniedHandler) {
                 this.jwtAuthFilter = jwtAuthFilter;
                 this.customAccessDeniedHandler = customAccessDeniedHandler;
         }
 
         @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOriginPatterns(List.of("*"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("*"));
+                config.setExposedHeaders(List.of("Authorization"));
+                config.setAllowCredentials(true);
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+
+                return source;
+        }
+
+        @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-                http
-                                .csrf(csrf -> csrf.disable())
-                                .cors(cors -> {
-                                })
+                http.csrf(csrf -> csrf.disable())
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/auth/**").permitAll()
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/avisos").permitAll()
+                                                .requestMatchers("/auth/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/mercadopago/webhook").permitAll()
+                                                .requestMatchers("/mercadopago/**").permitAll()
+                                                .requestMatchers("/error").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/avisos", "/avisos/**").permitAll()
                                                 .requestMatchers("/me").authenticated()
-                                                .requestMatchers(HttpMethod.GET, "/clases/**")
+                                                .requestMatchers(HttpMethod.GET, "/clases", "/clases/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/clases", "/clases/  **")
+                                                .hasAnyRole("ADMIN", "COACH")
+                                                .requestMatchers(HttpMethod.PUT, "/clases", "/clases/**")
+                                                .hasAnyRole("ADMIN", "COACH")
+                                                .requestMatchers(HttpMethod.DELETE, "/clases", "/clases/**")
+                                                .hasAnyRole("ADMIN", "COACH")
+                                                .requestMatchers(HttpMethod.GET, "/membresias", "/membresias/**")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/membresias/adquirir/**")
                                                 .hasAnyRole("USER", "ADMIN", "COACH")
-                                                .requestMatchers(HttpMethod.POST, "/clases/**")
+                                                .requestMatchers(HttpMethod.POST, "/membresias", "/membresias/**")
                                                 .hasAnyRole("ADMIN", "COACH")
-                                                .requestMatchers(HttpMethod.PUT, "/clases/**")
+                                                .requestMatchers(HttpMethod.PUT, "/membresias/**")
                                                 .hasAnyRole("ADMIN", "COACH")
-                                                .requestMatchers(HttpMethod.DELETE, "/clases/**")
+                                                .requestMatchers(HttpMethod.DELETE, "/membresias/**")
                                                 .hasAnyRole("ADMIN", "COACH")
-                                                .requestMatchers(HttpMethod.POST, "/avisos", "/avisos/")
+                                                .requestMatchers(HttpMethod.POST, "/avisos", "/avisos/**")
                                                 .hasAnyRole("ADMIN", "COACH")
                                                 .requestMatchers(HttpMethod.DELETE, "/avisos/**")
                                                 .hasAnyRole("ADMIN", "COACH")
-                                                .requestMatchers(HttpMethod.GET, "/membresias/**")
-                                                .hasAnyRole("USER", "ADMIN", "COACH")
-                                                .requestMatchers("/membresias/**").hasRole("ADMIN")
                                                 .requestMatchers(HttpMethod.POST, "/clases-personalizadas/**")
                                                 .hasAnyRole("ADMIN", "COACH")
                                                 .requestMatchers("/admin/users/aptos-personalizada")
                                                 .hasAnyRole("ADMIN", "COACH")
                                                 .requestMatchers("/admin/users/**").hasRole("ADMIN")
                                                 .requestMatchers("/roles/**").hasRole("ADMIN")
-                                                .requestMatchers("/reportes/**").hasRole("ADMIN")
-
+                                                .requestMatchers("/api/reportes/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
-                                .exceptionHandling(ex -> ex
-                                                .accessDeniedHandler(customAccessDeniedHandler))
+
+                                .exceptionHandling(ex -> ex.accessDeniedHandler(customAccessDeniedHandler))
+
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
-        }
-
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-
-                CorsConfiguration config = new CorsConfiguration();
-
-                config.setAllowedOrigins(List.of(corsOrigin));
-                System.out.println("CORS ORIGIN: " + corsOrigin);
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("*"));
-                config.setAllowCredentials(true);
-
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", config);
-
-                return source;
         }
 }

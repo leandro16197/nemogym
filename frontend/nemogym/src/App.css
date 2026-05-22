@@ -1314,8 +1314,8 @@ input[type="email"] {
 
 .planes-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); 
-  max-width: 800px; 
+  grid-template-columns: repeat(3, 1fr); 
+  max-width: 76%; 
   margin: 0 auto; 
   gap: 2rem;
   padding: 0 1.5rem 3rem 1.5rem;
@@ -2982,7 +2982,6 @@ input[type="email"] {
     font-size: 0.9rem;
 }
 
-/* Select de Rol dentro de la tabla */
 .table-select-rol {
     background: #1e293b;
     color: #22d3ee;
@@ -2992,7 +2991,6 @@ input[type="email"] {
     font-size: 0.85rem;
 }
 
-/* Botones de acción */
 .btn-icon-edit, .btn-icon-delete {
     background: #334155;
     border: none;
@@ -3006,7 +3004,6 @@ input[type="email"] {
 .btn-icon-edit:hover { background: #0ea5e9; }
 .btn-icon-delete:hover { background: #ef4444; }
 
-/* Footer y Paginación */
 .table-footer {
     padding: 15px 20px;
     display: flex;
@@ -3044,7 +3041,7 @@ input[type="email"] {
     color: #fff;
 }
 
-/* Modal Dark */
+
 .modal-dark-overlay {
     position: fixed;
     inset: 0;
@@ -3073,3 +3070,247 @@ input[type="email"] {
 
 .btn-danger { background: #ef4444; color: white; border: none; padding: 10px; border-radius: 8px; flex: 1; cursor: pointer; }
 .btn-secondary { background: #334155; color: white; border: none; padding: 10px; border-radius: 8px; flex: 1; cursor: pointer; }
+
+
+.payment-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 85vh;
+    padding: 20px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+
+.payment-card {
+    background: #ffffff;
+    padding: 48px;
+    border-radius: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 440px;
+    width: 100%;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.icon {
+    font-size: 36px;
+    padding: 24px;
+    border-radius: 50%;
+    margin-bottom: 24px;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.success .icon { background: #ecfdf5; color: #059669; }
+.error .icon { background: #fef2f2; color: #dc2626; }
+
+p { 
+    color: #64748b; 
+    margin-bottom: 32px; 
+    font-size: 16px; 
+    line-height: 1.6;
+}
+
+.payment-receipt {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    border: 1px dashed #cbd5e1;
+    color: #334155;
+}
+.payment-receipt span {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.btn-action {
+    border: none;
+    padding: 18px 24px;
+    border-radius: 16px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-action:hover { 
+    transform: translateY(-4px); 
+    filter: brightness(1.1);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.btn-action { background: #0f172a; color: #ffffff; }
+.btn-action.secondary { background: #e2e8f0; color: #475569; }
+
+.payment-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-weight: 600;
+    color: #64748b;
+}
+
+@media (max-width: 480px) {
+    .payment-card { padding: 32px; }
+    h1 { font-size: 24px; }
+}
+.titulo-pago{
+  color: #2853a7;
+}
+.reportes-container {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #f8fafc;
+    padding: 10px; 
+    padding-top: 0px !important;
+    
+}
+.content-area:has(.reportes-container) {
+    padding: 0 !important;
+}
+
+.reportes-container h1 {
+    margin-bottom: 1.5rem; 
+    color: #ffffff;
+    font-size: 1.8rem;
+    text-align: left;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem; 
+    align-items: start;
+    justify-items: center;
+}
+
+@media (max-width: 992px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+}
+
+@media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+}
+
+.stat-card {
+    width: 57%;
+    background: #1e293b;
+    padding: 0.5rem; 
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-card:hover { transform: translateY(-3px); }
+
+.stat-card h3 {
+    font-size: 0.75rem; 
+    color: #94a3b8;
+    margin-bottom: 0.2rem; 
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-card p {
+    font-size: 1.4rem; 
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+.charts-grid {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.chart-container {
+    background: #1e293b;
+    padding: 1rem; 
+    border-radius: 16px;
+    width: 100%;
+    max-width: 450px; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chart-container h3 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: #e2e8f0;
+    font-size: 1.1rem;
+}
+
+
+
+.dashboard-bottom {
+    display: grid;
+    grid-template-columns: 1fr 2fr; 
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.table-container {
+    background: #1e293b;
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+table { width: 100%; border-collapse: collapse; color: #e2e8f0; }
+th { text-align: left; padding: 0.8rem; color: #94a3b8; border-bottom: 1px solid #334155; }
+td { padding: 0.8rem; border-bottom: 1px solid #334155; }
+
+
+@media (max-width: 900px) {
+    .dashboard-bottom { grid-template-columns: 1fr; }
+}
+
+.pagos-table{
+  margin-top: 0px !important;
+}
+
+.reportes-bottom{
+  margin-top: 1rem !important;
+  height: 62.5% !important;
+}
+
+.plan-card {
+  position: relative;
+}
+
+.btn-delete-plan {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 59, 59, 0.1);
+  border: none;
+  color: #ff3b3b;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete-plan:hover {
+  background: rgba(255, 59, 59, 0.2);
+}

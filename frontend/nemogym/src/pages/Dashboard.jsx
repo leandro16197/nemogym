@@ -60,7 +60,7 @@ function Dashboard() {
             </div>
         );
     }
-
+ 
     const maxEjercicios = clases.length > 0 ? Math.max(...clases.map(c => c.ejercicios?.length || 0)) : 0;
 
     return (
@@ -70,7 +70,7 @@ function Dashboard() {
                     <div className="icon-box"><Dumbbell size={20} /></div>
                     Panel de Entrenamiento
                 </h2>
-                <p>Bienvenido, <strong>{user?.name}</strong>. Aquí tienes tu planificación para hoy.</p>
+                <p>Bienvenido, <strong>{user?.nombre}</strong>. Aquí tienes tu planificación para hoy.</p>
             </div>
 
             <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start' }}>

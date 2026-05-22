@@ -88,7 +88,7 @@ function SociosList() {
   };
 
   return (
-    <div className="personalizadas-container"> {/* Contenedor principal para margen y padding */}
+    <div className="personalizadas-container">
       <div className="header-wrapper">
         <h2>
           <div className="icon-box"><Users size={20} /></div>
@@ -202,7 +202,6 @@ function SociosList() {
         </div>
       </div>
 
-      {/* Modal Confirmación */}
       {showModal && (
         <div className="modal-dark-overlay">
           <div className="modal-dark-card">

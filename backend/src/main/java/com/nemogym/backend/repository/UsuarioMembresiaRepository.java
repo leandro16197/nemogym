@@ -21,4 +21,6 @@ public interface UsuarioMembresiaRepository extends JpaRepository<UsuarioMembres
     List<User> findUsuariosConPlanFullActivo();
 
     List<UsuarioMembresia> findByUsuarioIdAndActivoTrue(Long usuarioId);
+
+    List<UsuarioMembresia> findByUsuarioId(Long usuarioId);
 }

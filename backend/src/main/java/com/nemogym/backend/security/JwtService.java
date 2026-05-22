@@ -21,7 +21,6 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-    // 🔐 clave de firma
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -37,7 +36,7 @@ public class JwtService {
                 .setSubject(user.getEmail())
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(getSigningKey())
                 .compact();
     }

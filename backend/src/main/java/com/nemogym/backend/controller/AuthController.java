@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "${app.cors.origin}")
 public class AuthController {
 
         private final UserRepository userRepository;

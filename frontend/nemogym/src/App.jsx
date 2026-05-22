@@ -14,7 +14,9 @@ import Register from './pages/Register';
 import Membresias from './pages/Membresias';
 import RolesManager from './pages/RolesManager';
 import ClasesPersonalizadas from './pages/PersonalizadasList'; 
+import PagoResultado from './pages/PagoResultado';
 import CustomToast from './components/CustomToast';
+import Reportes from './pages/Reportes';
 import './App.css';
 
 
@@ -97,6 +99,9 @@ function App() {
                     <Route element={<DashboardLayout />}>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/membresias" element={<Membresias />} />
+                        <Route path="/payment-success" element={<PagoResultado />} />
+                        <Route path="/payment-failure" element={<PagoResultado />} />
+
                         <Route path="/clases" element={<AdminRoute><ClasesList /></AdminRoute>} />
                         <Route path="/clases/nueva" element={<AdminRoute><ClasesForm /></AdminRoute>} />
                         <Route path="/clases/editar/:id" element={<AdminRoute><ClasesForm /></AdminRoute>} />
@@ -105,6 +110,7 @@ function App() {
                         <Route path="/admin/users/edit/:id" element={<AdminRoute><SocioForm /></AdminRoute>} />
                         <Route path="/clases-personalizadas" element={<PersonalizadasRoute><ClasesPersonalizadas /></PersonalizadasRoute>} />
                         <Route path="/roles" element={<OnlyAdminRoute><RolesManager /></OnlyAdminRoute>} />
+                        <Route path="/reportes" element={<OnlyAdminRoute><Reportes /></OnlyAdminRoute>} />
                     </Route>
 
                     <Route path="*" element={<Navigate to="/login" replace />} />

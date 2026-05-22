@@ -20,7 +20,6 @@ function Navbar({ toggleSidebar }) {
   return (
     <nav className="navbar">
       <div className="nav-left">
-        {/* BOTÓN HAMBURGUESA: Visible solo en móviles */}
         <button 
           className="mobile-menu-btn" 
           onClick={toggleSidebar}
