@@ -7,25 +7,25 @@ const RolesTable = ({ roles, onEdit, onDelete, editingId }) => {
       <table className="routine-table">
         <thead>
           <tr>
-            <th style={{ width: '80px' }}>ID</th>
-            <th>NOMBRE DEL ROL</th>
-            <th style={{ textAlign: 'right' }}>ACCIONES</th>
+            <th style={{ width: '80px', textAlign: 'center' }}>ID</th>
+            <th style={{ textAlign: 'center' }}>NOMBRE DEL ROL</th>
+            <th style={{ textAlign: 'center' }}>ACCIONES</th>
           </tr>
         </thead>
         <tbody>
           {roles.length > 0 ? (
             roles.map((r) => (
               <tr key={r.id} className={editingId === r.id ? 'editing-row' : ''}>
-                <td>
+                <td style={{ textAlign: 'center' }}>
                    <div className="socio-name" style={{ color: '#94a3b8' }}>#{r.id}</div>
                 </td>
-                <td>
+                <td style={{ textAlign: 'center' }}>
                   <span className={`badge-role ${r.name.toLowerCase()}`}>
                     {r.name}
                   </span>
                 </td>
-                <td style={{ textAlign: 'right' }}>
-                  <div className="actions-cell-group" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <td style={{ textAlign: 'center' }}>
+                  <div className="actions-cell-group" style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
                     <button 
                       className="btn-icon-edit" 
                       title="Editar rol"
@@ -46,7 +46,9 @@ const RolesTable = ({ roles, onEdit, onDelete, editingId }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="3" className="no-results">No hay roles registrados.</td>
+              <td colSpan="3" className="no-results" style={{ textAlign: 'center' }}>
+                No hay roles registrados.
+              </td>
             </tr>
           )}
         </tbody>

@@ -61,18 +61,6 @@ function Sidebar({ isOpen, closeSidebar }) {
               </Link>
             ))}
           </nav>
-          
-          <div className="sidebar-footer">
-            {isAdmin && (
-              <Link 
-                to="/settings" 
-                className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`} 
-                onClick={closeSidebar}
-              >
-              
-              </Link>
-            )}
-          </div>
         </div>
       </aside>
     </>

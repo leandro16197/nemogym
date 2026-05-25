@@ -25,7 +25,10 @@ public class PagoTransaccion {
 
     @PrePersist
     protected void onCreate() {
-        this.fechaCreacion = LocalDateTime.now();
+
+        if (this.fechaCreacion == null) {
+            this.fechaCreacion = LocalDateTime.now();
+        }
         if (this.estado == null) {
             this.estado = "PENDIENTE";
         }

@@ -15,29 +15,29 @@ const ClasesTable = ({ clases, onView, onEdit, onDelete }) => {
             <table className="routine-table">
                 <thead>
                     <tr>
-                        <th>DÍA / ORDEN</th>
-                        <th>GÉNERO</th>
-                        <th>CANT. EJERCICIOS</th>
-                        <th style={{ textAlign: 'right' }}>ACCIONES</th>
+                        <th style={{ textAlign: 'center' }}>DÍA / ORDEN</th>
+                        <th style={{ textAlign: 'center' }}>GÉNERO</th>
+                        <th style={{ textAlign: 'center' }}>CANT. EJERCICIOS</th>
+                        <th style={{ textAlign: 'center' }}>ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
                     {clases.length > 0 ? (
                         clases.map((c, index) => (
                             <tr key={c.id}>
-                                <td>
+                                <td style={{ textAlign: 'center' }}>
                                     <div className="socio-name">DÍA {getNumeroDiaRelativo(c, index)}</div>
                                 </td>
-                                <td>
+                                <td style={{ textAlign: 'center' }}>
                                     <span className={`badge ${c.genero.toLowerCase()}`}>{c.genero}</span>
                                 </td>
-                                <td>
+                                <td style={{ textAlign: 'center' }}>
                                     <div className="socio-email">
-                                        {c.ejercicios?.length || 0} ejercicios registrados
+                                        {c.ejercicios?.length || 0} ejercicios
                                     </div>
                                 </td>
-                                <td style={{ textAlign: 'right' }}>
-                                    <div className="actions-cell-group" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                <td style={{ textAlign: 'center' }}>
+                                    <div className="actions-cell-group" style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
                                         <button 
                                             className="btn-icon-view" 
                                             title="Ver detalle"
@@ -54,12 +54,11 @@ const ClasesTable = ({ clases, onView, onEdit, onDelete }) => {
                                                 justifyContent: 'center',
                                                 transition: 'all 0.2s'
                                             }}
-                                            // Agregamos un efecto hover simple
                                             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.25)'}
                                             onMouseOut={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)'}
-                                            >
+                                        >
                                             <Eye size={18} />
-                                            </button>
+                                        </button>
                                         <button className="btn-icon-edit" onClick={() => onEdit(c.id)}>
                                             <Edit3 size={18} />
                                         </button>
@@ -72,7 +71,7 @@ const ClasesTable = ({ clases, onView, onEdit, onDelete }) => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="4" className="no-results">No hay clases registradas aún.</td>
+                            <td colSpan="4" className="no-results" style={{ textAlign: 'center' }}>No hay clases registradas aún.</td>
                         </tr>
                     )}
                 </tbody>

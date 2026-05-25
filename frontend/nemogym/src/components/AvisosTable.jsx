@@ -7,28 +7,28 @@ const AvisosTable = ({ avisos, onEliminar }) => {
             <table className="routine-table">
                 <thead>
                     <tr>
-                        <th style={{ width: '150px' }}>FECHA</th>
-                        <th>MENSAJE</th>
-                        <th style={{ textAlign: 'right', width: '100px' }}>ACCIONES</th>
+                        <th style={{ width: '150px', textAlign: 'center' }}>FECHA</th>
+                        <th style={{ textAlign: 'center' }}>MENSAJE</th>
+                        <th style={{ textAlign: 'center', width: '100px' }}>ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
                     {avisos.length > 0 ? (
                         avisos.map((a) => (
                             <tr key={a.id}>
-                                <td>
-                                    <div className="socio-email" style={{ color: '#94a3b8' }}>
+                                <td style={{ textAlign: 'center' }}>
+                                    <div className="socio-email" style={{ color: '#94a3b8', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                         <Calendar size={14} style={{ marginRight: '6px' }} />
                                         {a.createdAt ? new Date(a.createdAt).toLocaleDateString() : 'S/F'}
                                     </div>
                                 </td>
                                 <td>
-                                    <div className="socio-name" style={{ whiteSpace: 'normal', lineHeight: '1.5' }}>
+                                    <div className="socio-name" style={{ whiteSpace: 'normal', lineHeight: '1.5', paddingLeft: '10px' }}>
                                         {a.mensaje}
                                     </div>
                                 </td>
-                                <td style={{ textAlign: 'right' }}>
-                                    <div className="actions-cell-group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <td style={{ textAlign: 'center' }}>
+                                    <div className="actions-cell-group" style={{ display: 'flex', justifyContent: 'center' }}>
                                         <button
                                             onClick={() => onEliminar(a)}
                                             className="btn-icon-delete"
@@ -42,7 +42,7 @@ const AvisosTable = ({ avisos, onEliminar }) => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="3" className="no-results">No hay avisos publicados.</td>
+                            <td colSpan="3" className="no-results" style={{ textAlign: 'center' }}>No hay avisos publicados.</td>
                         </tr>
                     )}
                 </tbody>

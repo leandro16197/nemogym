@@ -10,9 +10,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Random;
 
 @Configuration
 public class DataSeeder {
+
+    private final String[] NOMBRES = { "Juan", "Maria", "Carlos", "Ana", "Luis", "Elena", "Pedro", "Sofia", "Diego",
+            "Lucia", "Javier", "Camila", "Mateo", "Valentina", "Nicolas", "Isabella" };
+    private final String[] APELLIDOS = { "Garcia", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Perez",
+            "Sanchez", "Ramirez", "Torres", "Flores", "Rivera", "Gomez", "Diaz", "Cruz", "Morales" };
+    private final Random random = new Random();
+
+    private String generarNombreAleatorio() {
+        return NOMBRES[random.nextInt(NOMBRES.length)] + " " + APELLIDOS[random.nextInt(APELLIDOS.length)];
+    }
 
     @Bean
     CommandLineRunner seedUserDatabase(
@@ -46,27 +57,33 @@ public class DataSeeder {
             full.setFeatures(new ArrayList<>());
             membresiaRepository.save(full);
 
+            // Generación de usuarios Full
             for (int i = 1; i <= 10; i++) {
+                String nombreCompleto = generarNombreAleatorio();
+                String email = nombreCompleto.toLowerCase().replace(" ", ".") + i + "@gym.com";
                 User user = createAndSaveUser(
-                        "Socio Full " + i,
-                        "full" + i + "@gym.com",
+                        nombreCompleto,
+                        email,
                         (i % 2 == 0 ? Genero.HOMBRE : Genero.MUJER),
                         userRepository,
                         encoder);
                 assignMembership(user, full, userMemRepo);
             }
 
+            // Generación de usuarios Basic
             for (int i = 1; i <= 10; i++) {
+                String nombreCompleto = generarNombreAleatorio();
+                String email = nombreCompleto.toLowerCase().replace(" ", ".") + (i + 10) + "@gym.com";
                 User user = createAndSaveUser(
-                        "Socio Basic " + i,
-                        "basic" + i + "@gym.com",
+                        nombreCompleto,
+                        email,
                         (i % 2 == 0 ? Genero.MUJER : Genero.HOMBRE),
                         userRepository,
                         encoder);
                 assignMembership(user, basic, userMemRepo);
             }
 
-            System.out.println(">>> SEEDER: 20 usuarios y sus membresías cargados con éxito.");
+            System.out.println(">>> SEEDER: 20 usuarios con nombres aleatorios cargados con éxito.");
         };
     }
 

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/membresias")
@@ -83,5 +84,31 @@ public class MembresiaController {
         usuarioMembresiaRepository.save(compra);
 
         return ResponseEntity.ok("Membresía adquirida con éxito. ¡Ya puedes acceder a tus clases!");
+    }
+
+    @PostMapping("/assign")
+    public ResponseEntity<?> assignMembresiaToUser(@RequestBody Map<String, Long> payload) {
+        Long userId = payload.get("userId");
+        Long membresiaId = payload.get("membresiaId");
+
+        List<UsuarioMembresia> historial = usuarioMembresiaRepository.findByUsuarioId(userId);
+
+        UsuarioMembresia compra;
+
+        if (!historial.isEmpty()) {
+            compra = historial.get(0);
+        } else {
+            compra = new UsuarioMembresia();
+            compra.setUsuario(usuarioRepository.findById(userId).orElseThrow());
+        }
+
+        compra.setMembresia(repository.findById(membresiaId).orElseThrow());
+        compra.setFechaInicio(LocalDate.now());
+        compra.setFechaFin(LocalDate.now().plusMonths(1));
+        compra.setActivo(true);
+
+        usuarioMembresiaRepository.save(compra);
+
+        return ResponseEntity.ok("Registro actualizado correctamente sin crear duplicados");
     }
 }

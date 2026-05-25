@@ -3314,3 +3314,84 @@ td { padding: 0.8rem; border-bottom: 1px solid #334155; }
 .btn-delete-plan:hover {
   background: rgba(255, 59, 59, 0.2);
 }
+
+
+.date-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+    align-items: center;
+    background: #25283d; 
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.date-label { 
+    color: #88aaff; 
+    font-size: 0.85rem; 
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.date-input {
+    background: #1a1d2e;
+    border: 1px solid #3b3f5c;
+    color: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    flex: 1; 
+}
+
+.btn-clear-filters {
+    background: #3b3f5c;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    height: 38px; 
+}
+
+.btn-clear-filters:hover {
+    background: #ff5555; 
+}
+
+
+.table-select-plan {
+  background-color: #1f2937;
+  color: #e5e7eb;           
+  border: 1px solid #374151; 
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;             
+  max-width: 150px;      
+  transition: all 0.2s ease;
+  appearance: none;       
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+}
+
+.table-select-plan:hover {
+  border-color: #6366f1; 
+}
+
+
+.table-select-plan:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.table-select-plan option {
+  background-color: #1f2937;
+  color: white;
+  padding: 10px;
+}

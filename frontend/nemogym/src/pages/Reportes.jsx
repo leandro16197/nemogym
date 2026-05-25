@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { AuthContext } from '../context/AuthContext';
 import { StatCard } from '../components/StatsCards';
@@ -9,8 +9,28 @@ const Reportes = () => {
     const [pagosPage, setPagosPage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    
+
     const [page, setPage] = useState(0);
+    const [nombreFiltro, setNombreFiltro] = useState('');
+    
     const { getToken } = useContext(AuthContext);
+
+    const fetchPagos = useCallback(async (pageToFetch, nombre = '') => {
+        try {
+            const url = `${import.meta.env.VITE_API_URL}/api/reportes/ultimos-pagos?page=${pageToFetch}&size=5&nombre=${encodeURIComponent(nombre)}`;
+            const res = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${getToken()}` }
+            });
+            if (!res.ok) throw new Error("Error cargando pagos");
+            const data = await res.json();
+            setPagosPage(data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [getToken]);
 
     useEffect(() => {
         const fetchMetricas = async () => {
@@ -19,8 +39,7 @@ const Reportes = () => {
                     headers: { 'Authorization': `Bearer ${getToken()}` }
                 });
                 if (!res.ok) throw new Error("Error cargando métricas");
-                const data = await res.json();
-                setMetricas(data);
+                setMetricas(await res.json());
             } catch (err) {
                 setError(err.message);
             }
@@ -29,25 +48,11 @@ const Reportes = () => {
     }, [getToken]);
 
     useEffect(() => {
-        const fetchPagos = async () => {
-            try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reportes/ultimos-pagos?page=${page}&size=5`, {
-                    headers: { 'Authorization': `Bearer ${getToken()}` }
-                });
-                if (!res.ok) throw new Error("Error cargando pagos");
-                const data = await res.json();
-                setPagosPage(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPagos();
-    }, [getToken, page]);
+        fetchPagos(page, nombreFiltro);
+    }, [page, nombreFiltro, fetchPagos]);
 
     if (loading && !metricas) return <div className="loading">Cargando...</div>;
-    if (error) return <div className="error-alert"><h3>❌ Error</h3><p>{error}</p></div>;
+    if (error) return <div className="error-alert"><h3>Error</h3><p>{error}</p></div>;
     if (!metricas || !pagosPage) return null;
 
     const dataMembresias = [
@@ -59,7 +64,6 @@ const Reportes = () => {
     return (
         <div className="reportes-container">
             <h1>Dashboard de Gestión</h1>
-            
             <div className="stats-grid">
                 <StatCard title="Ingresos" value={`$ ${metricas.montoTotalRecaudado?.toLocaleString()}`} />
                 <StatCard title="Total Transacciones" value={metricas.totalPagos} />
@@ -71,20 +75,20 @@ const Reportes = () => {
             <div className="dashboard-bottom reportes-bottom">
                 <div className="chart-container">
                     <h3>Distribución de Membresías</h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                        <PieChart>
-                            <Pie data={dataMembresias} dataKey="value" nameKey="name" outerRadius={70} label>
-                                {dataMembresias.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px' }} />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                        <Pie data={dataMembresias} dataKey="value" nameKey="name" outerRadius={60}labelLine={true} label={({ name, value }) => `${name}: ${value}`} >
+                            {dataMembresias.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                        <Legend verticalAlign="bottom" height={36}/>
+                    </PieChart>
+                </ResponsiveContainer>
                 </div>
 
-                <PagosTable pagosPage={pagosPage} page={page} setPage={setPage} />
+                <PagosTable pagosPage={pagosPage} page={page} setPage={setPage}nombreFiltro={nombreFiltro}setNombreFiltro={setNombreFiltro} fetchPagos={fetchPagos} />
             </div>
         </div>
     );

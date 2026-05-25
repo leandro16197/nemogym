@@ -85,6 +85,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/admin/users/**").hasRole("ADMIN")
                                                 .requestMatchers("/roles/**").hasRole("ADMIN")
                                                 .requestMatchers("/api/reportes/**").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/membresias/assign").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
 
                                 .exceptionHandling(ex -> ex.accessDeniedHandler(customAccessDeniedHandler))
