@@ -7,8 +7,6 @@ const HistorialPagosModal = ({ isOpen, onClose, usuarioId, usuarioNombre }) => {
   const [pagos, setPagos] = useState([]);
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
-
-  // Corregido para manejar mejor el formato ISO recibido
   const formatearFecha = (fechaISO) => {
     if (!fechaISO) return 'N/A';
     return new Date(fechaISO).toLocaleDateString('es-ES', {
@@ -102,7 +100,6 @@ const HistorialPagosModal = ({ isOpen, onClose, usuarioId, usuarioNombre }) => {
                   
                   return (
                     <tr key={index} style={{ borderBottom: '1px solid #2a2d3c' }}>
-                      {/* Corregido: usando pago.fechaCreacion */}
                       <td style={{ padding: '10px', textAlign: 'center' }}>{formatearFecha(pago.fechaCreacion)}</td>
                       
                       <td style={{ padding: '10px', textAlign: 'center', fontSize: '0.9rem' }}>

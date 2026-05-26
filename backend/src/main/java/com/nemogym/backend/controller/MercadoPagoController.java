@@ -131,27 +131,21 @@ public class MercadoPagoController {
                                         case "FUND":
                                                 pagoLocal.setEstado("RECHAZO_FONDOS_INSUFICIENTES");
                                                 break;
-
                                         case "SECU":
                                                 pagoLocal.setEstado("RECHAZO_CVV_INVALIDO");
                                                 break;
-
                                         case "EXPI":
                                                 pagoLocal.setEstado("RECHAZO_TARJETA_VENCIDA");
                                                 break;
-
                                         case "DUPL":
                                                 pagoLocal.setEstado("RECHAZO_PAGO_DUPLICADO");
                                                 break;
-
                                         case "LOCK":
                                                 pagoLocal.setEstado("RECHAZO_TARJETA_BLOQUEADA");
                                                 break;
-
                                         case "CALL":
                                                 pagoLocal.setEstado("RECHAZO_REQUIERE_AUTORIZACION");
                                                 break;
-
                                         case "OTHE":
                                         default:
                                                 pagoLocal.setEstado("RECHAZO_GENERAL");

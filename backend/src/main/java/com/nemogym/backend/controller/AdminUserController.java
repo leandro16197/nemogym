@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -100,10 +102,19 @@ public class AdminUserController {
 
     private UserDTO mapToDTO(User user) {
         var subscription = subscriptionRepository.findActiveByEmail(user.getEmail());
+
         boolean tienePlanActivo = subscription.isPresent();
-        String nombrePlan = subscription
-                .map(s -> s.getPlan().getName())
-                .orElse(null);
+        String nombrePlan = null;
+        Long diasRestantes = 0L;
+
+        if (tienePlanActivo) {
+            var s = subscription.get();
+            nombrePlan = s.getPlan().getName();
+            diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), s.getEndDate());
+            if (diasRestantes < 0) {
+                tienePlanActivo = false;
+            }
+        }
 
         return new UserDTO(
                 user.getId(),
@@ -114,6 +125,7 @@ public class AdminUserController {
                         .collect(Collectors.toSet()),
                 user.getGenero(),
                 tienePlanActivo,
-                nombrePlan);
+                nombrePlan,
+                diasRestantes);
     }
 }

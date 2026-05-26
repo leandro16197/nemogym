@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,10 +65,18 @@ public class AuthController {
                 var membresiaActiva = usuarioMembresiaRepository.findMembresiaActiva(user.getEmail());
 
                 boolean tienePlanActivo = membresiaActiva.isPresent();
-                String nombrePlan = membresiaActiva
-                                .map(um -> um.getMembresia().getNombre())
-                                .orElse(null);
-
+                String nombrePlan = null;
+                Long diasRestantes = 0L;
+                if (tienePlanActivo) {
+                        var m = membresiaActiva.get();
+                        nombrePlan = m.getMembresia().getNombre();
+                        diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), m.getFechaFin());
+                        if (diasRestantes < 0) {
+                                m.setActivo(false);
+                                usuarioMembresiaRepository.save(m);
+                                tienePlanActivo = false;
+                        }
+                }
                 String token = jwtService.generateToken(user);
                 Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
 
@@ -77,7 +87,8 @@ public class AuthController {
                                 roles,
                                 user.getGenero(),
                                 tienePlanActivo,
-                                nombrePlan);
+                                nombrePlan,
+                                diasRestantes);
 
                 return ResponseEntity.ok(new AuthResponse(true, "Login exitoso", token, userDTO));
         }
@@ -115,9 +126,20 @@ public class AuthController {
                 var membresiaActiva = usuarioMembresiaRepository.findMembresiaActiva(user.getEmail());
 
                 boolean tienePlanActivo = membresiaActiva.isPresent();
-                String nombrePlan = membresiaActiva
-                                .map(um -> um.getMembresia().getNombre())
-                                .orElse(null);
+                String nombrePlan = null;
+                Long diasRestantes = 0L;
+
+                if (tienePlanActivo) {
+                        var m = membresiaActiva.get();
+                        nombrePlan = m.getMembresia().getNombre();
+                        diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), m.getFechaFin());
+
+                        if (diasRestantes < 0) {
+                                m.setActivo(false);
+                                usuarioMembresiaRepository.save(m);
+                                tienePlanActivo = false;
+                        }
+                }
 
                 Set<String> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
 
@@ -128,6 +150,7 @@ public class AuthController {
                                 roles,
                                 user.getGenero(),
                                 tienePlanActivo,
-                                nombrePlan));
+                                nombrePlan,
+                                diasRestantes));
         }
 }

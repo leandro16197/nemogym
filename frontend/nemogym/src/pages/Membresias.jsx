@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Plus, Dumbbell, Zap } from 'lucide-react';
 import PlanCard from '../components/PlanCard';
 import MembresiaModal from '../components/MembresiaModal';
 
 const Membresias = () => {
-  const { getToken, user } = useContext(AuthContext);
+  const { getToken, user, verifyPlan } = useContext(AuthContext);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [planes, setPlanes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +42,42 @@ const Membresias = () => {
       setLoading(false);
     }
   };
+
+const handleAdquirir = async (plan) => {
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  try {
+    window.appCustom.smallBox('info', 'Preparando el pago...');
+    
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/mercadopago/crear-preferencia/${plan.id}`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${getToken()}`,
+        'Content-Type': 'application/json' 
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Error al crear preferencia");
+    }
+
+    const data = await response.json();
+    const urlRedireccion = data.init_point || data.initPoint;
+
+    if (urlRedireccion) {
+      await delay(5000);
+      window.appCustom.smallBox('ok', 'Redirigiendo a Mercado Pago ...');
+      await delay(5000);
+      window.location.assign(urlRedireccion);
+    } else {
+      window.appCustom.smallBox('error', 'La respuesta del servidor no contiene una URL válida.');
+    }
+  } catch (err) {
+    console.error("Error en handleAdquirir:", err);
+    window.appCustom.smallBox('error', 'No se pudo iniciar el pago: ' + err.message);
+  }
+};
 
   useEffect(() => {
     fetchPlanes();
@@ -81,25 +116,23 @@ const Membresias = () => {
   const handlePlanAction = (plan) => {
     if (isAdmin) {
       setEditingPlan(plan);
-      setFormData(plan);
+      setFormData({ 
+        ...plan, 
+        features: Array.isArray(plan.features) ? plan.features.join(', ') : plan.features 
+      });
       setShowModal(true);
     } else {
       handleAdquirir(plan);
     }
   };
+
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingPlan(null);
-    setFormData({ 
-      nombre: '', 
-      precio: '', 
-      icono: 'Dumbbell', 
-      tipo: 'basic', 
-      popular: false, 
-      features: '' 
-    });
+    setFormData({ nombre: '', precio: '', icono: 'Dumbbell', tipo: 'basic', popular: false, features: '' });
     fetchPlanes();
   };
+
   const handleDelete = async (id) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este plan?")) return;
 
@@ -147,7 +180,7 @@ const Membresias = () => {
 
       <MembresiaModal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={handleCloseModal}
         onSubmit={handleFormSubmit} 
         editingPlan={editingPlan}
         formData={formData}

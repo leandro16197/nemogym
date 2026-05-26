@@ -3,6 +3,7 @@ package com.nemogym.backend.dto;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 import com.nemogym.backend.entity.Subscription;
+import java.time.temporal.ChronoUnit;
 
 public class SubscriptionDTO {
 
@@ -12,9 +13,9 @@ public class SubscriptionDTO {
     private LocalDate endDate;
     private String planNombre;
     private UserDTO user;
+    private Long diasRestantes;
 
     public SubscriptionDTO(Subscription sub) {
-        System.out.println("Creando SubscriptionDTO para suscripción ID: " + sub.getId());
         this.id = sub.getId();
         this.active = sub.isActive();
         this.startDate = sub.getStartDate();
@@ -23,6 +24,10 @@ public class SubscriptionDTO {
         this.planNombre = (sub.getPlan() != null)
                 ? sub.getPlan().getName()
                 : null;
+
+        this.diasRestantes = (sub.getEndDate() != null)
+                ? ChronoUnit.DAYS.between(LocalDate.now(), sub.getEndDate())
+                : 0L;
 
         this.user = new UserDTO(
                 sub.getUser().getId(),
@@ -34,7 +39,8 @@ public class SubscriptionDTO {
                         .collect(Collectors.toSet()),
                 sub.getUser().getGenero(),
                 sub.isActive(),
-                this.planNombre);
+                this.planNombre,
+                this.diasRestantes);
     }
 
     public Long getId() {

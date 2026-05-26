@@ -1,12 +1,12 @@
 import { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('nemogym_token');
@@ -41,15 +41,14 @@ export const AuthProvider = ({ children }) => {
           genero: data.genero,
           hasActivePlan: data.hasActivePlan,
           nombrePlan: data.nombrePlan,
+          diasRestantes: data.diasRestantes // <--- NUEVO
         };
 
         localStorage.setItem('nemogym_user', JSON.stringify(updatedUserData));
         setUser(updatedUserData);
         return true;
-      } else if (response.status === 401 || response.status === 403) {
-        console.warn("Sesión expirada o sin permisos");
-        return false;
       }
+      return false;
     } catch (error) {
       console.error("Error validando sesión:", error);
       return false;
@@ -77,7 +76,8 @@ export const AuthProvider = ({ children }) => {
         role: data.user.roles[0],
         genero: data.user.genero,
         hasActivePlan: data.user.hasActivePlan || false,
-        nombrePlan: data.user.nombrePlan
+        nombrePlan: data.user.nombrePlan,
+        diasRestantes: data.user.diasRestantes 
       };
 
       localStorage.setItem('nemogym_token', data.token);

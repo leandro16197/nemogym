@@ -17,37 +17,39 @@ import java.util.Optional;
 @Repository
 public interface PagoTransaccionRepository extends JpaRepository<PagoTransaccion, Long> {
 
-    @Query("SELECT COUNT(p) FROM PagoTransaccion p")
-    long countTotalPagos();
+        @Query("SELECT COUNT(p) FROM PagoTransaccion p")
+        long countTotalPagos();
 
-    @Query("SELECT SUM(p.monto) FROM PagoTransaccion p WHERE p.estado = 'APROBADO'")
-    Double sumarMontoTotalAprobado();
+        @Query("SELECT SUM(p.monto) FROM PagoTransaccion p WHERE p.estado = 'APROBADO'")
+        Double sumarMontoTotalAprobado();
 
-    long countByEstado(String estado);
+        long countByEstado(String estado);
 
-    @Query("SELECT COUNT(p) FROM PagoTransaccion p WHERE p.membresia.tipo = :tipo")
-    long countByMembresiaTipo(String tipo);
+        @Query("SELECT COUNT(p) FROM PagoTransaccion p WHERE p.membresia.tipo = :tipo")
+        long countByMembresiaTipo(String tipo);
 
-    @Query("SELECT u.id, u.name, p.monto, p.estado " +
-            "FROM PagoTransaccion p " +
-            "LEFT JOIN User u ON p.usuarioId = u.id")
-    Page<Object[]> findUltimosPagos(Pageable pageable);
+        @Query("SELECT u.id, u.name, p.monto, p.estado " +
+                        "FROM PagoTransaccion p " +
+                        "JOIN User u ON p.usuarioId = u.id " +
+                        "WHERE p.id IN (SELECT MAX(p2.id) FROM PagoTransaccion p2 GROUP BY p2.usuarioId)")
+        Page<Object[]> findUltimosPagos(Pageable pageable);
 
-    @Query(value = "SELECT p.usuario_id, u.name, p.monto, p.estado " +
-            "FROM pagos_transacciones p " +
-            "JOIN users u ON p.usuario_id = u.id " +
-            "WHERE u.name LIKE CONCAT('%', :nombre, '%')", countQuery = "SELECT count(*) FROM pagos_transacciones p JOIN users u ON p.usuario_id = u.id WHERE u.name LIKE CONCAT('%', :nombre, '%')", nativeQuery = true)
-    Page<Object[]> findUltimosPagosConFiltro(@Param("nombre") String nombre, Pageable pageable);
+        @Query(value = "SELECT p.usuario_id, u.name, p.monto, p.estado " +
+                        "FROM pagos_transacciones p " +
+                        "JOIN users u ON p.usuario_id = u.id " +
+                        "WHERE u.name LIKE CONCAT('%', :nombre, '%')", countQuery = "SELECT count(*) FROM pagos_transacciones p JOIN users u ON p.usuario_id = u.id WHERE u.name LIKE CONCAT('%', :nombre, '%')", nativeQuery = true)
+        Page<Object[]> findUltimosPagosConFiltro(@Param("nombre") String nombre, Pageable pageable);
 
-    Optional<PagoTransaccion> findByPreferenciaId(String preferenciaId);
+        Optional<PagoTransaccion> findByPreferenciaId(String preferenciaId);
 
-    @Query("SELECT p FROM PagoTransaccion p WHERE p.usuarioId = :usuarioId AND p.fechaCreacion BETWEEN :fechaInicio AND :fechaFin")
-    List<PagoTransaccion> findByUsuarioIdAndFechaCreacionBetween(@Param("usuarioId") Long usuarioId,
-            @Param("fechaInicio") LocalDateTime fechaInicio, @Param("fechaFin") LocalDateTime fechaFin);
+        @Query("SELECT p FROM PagoTransaccion p WHERE p.usuarioId = :usuarioId AND p.fechaCreacion BETWEEN :fechaInicio AND :fechaFin")
+        List<PagoTransaccion> findByUsuarioIdAndFechaCreacionBetween(@Param("usuarioId") Long usuarioId,
+                        @Param("fechaInicio") LocalDateTime fechaInicio, @Param("fechaFin") LocalDateTime fechaFin);
 
-    List<PagoTransaccion> findByUsuarioIdAndFechaCreacionGreaterThanEqual(Long usuarioId, LocalDateTime fechaInicio);
+        List<PagoTransaccion> findByUsuarioIdAndFechaCreacionGreaterThanEqual(Long usuarioId,
+                        LocalDateTime fechaInicio);
 
-    List<PagoTransaccion> findByUsuarioIdAndFechaCreacionLessThanEqual(Long usuarioId, LocalDateTime fechaFin);
+        List<PagoTransaccion> findByUsuarioIdAndFechaCreacionLessThanEqual(Long usuarioId, LocalDateTime fechaFin);
 
-    List<PagoTransaccion> findByUsuarioId(Long usuarioId);
+        List<PagoTransaccion> findByUsuarioId(Long usuarioId);
 }

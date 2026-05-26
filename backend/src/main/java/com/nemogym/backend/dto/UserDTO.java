@@ -12,9 +12,10 @@ public class UserDTO {
     private Genero genero;
     private boolean hasActivePlan;
     private String nombrePlan;
+    private Long diasRestantes;
 
     public UserDTO(Long id, String email, String name, Set<String> roles, Genero genero, boolean hasActivePlan,
-            String nombrePlan) {
+            String nombrePlan, Long diasRestantes) {
         this.id = id;
         this.email = email;
         this.name = name;
@@ -22,6 +23,7 @@ public class UserDTO {
         this.genero = genero;
         this.hasActivePlan = hasActivePlan;
         this.nombrePlan = nombrePlan;
+        this.diasRestantes = diasRestantes;
     }
 
     public Long getId() {
@@ -74,6 +76,14 @@ public class UserDTO {
 
     public String getNombrePlan() {
         return nombrePlan;
+    }
+
+    public void setNombrePlan(String nombrePlan) {
+        this.nombrePlan = nombrePlan;
+    }
+
+    public Long getDiasRestantes() {
+        return diasRestantes;
     }
 
 }

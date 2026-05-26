@@ -7,7 +7,7 @@ import com.nemogym.backend.repository.UserRepository;
 import com.nemogym.backend.repository.UsuarioMembresiaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.time.temporal.ChronoUnit;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -39,8 +39,13 @@ public class UsuarioService {
                 boolean tienePlan = membresiaActiva != null;
                 String nombrePlan = tienePlan ? membresiaActiva.getMembresia().getNombre() : "SIN PLAN";
 
+                Long diasRestantes = 0L;
+                if (tienePlan) {
+                        diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), membresiaActiva.getFechaFin());
+                }
+
                 Set<String> rolesNames = user.getRoles().stream()
-                                .map(Object::toString)
+                                .map(role -> role.getName())
                                 .collect(Collectors.toSet());
 
                 return new UserDTO(
@@ -50,6 +55,7 @@ public class UsuarioService {
                                 rolesNames,
                                 user.getGenero(),
                                 tienePlan,
-                                nombrePlan);
+                                nombrePlan,
+                                diasRestantes);
         }
 }

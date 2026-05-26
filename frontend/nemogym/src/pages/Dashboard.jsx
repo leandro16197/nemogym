@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoutineTable from '../components/RoutineTable';
 import AnnouncementsSidebar from '../components/AnnouncementsSidebar';
-
+import SubscriptionAlert from '../components/SubscripcionAlerta';
 function Dashboard() {
     const [clases, setClases] = useState([]);
     const [avisos, setAvisos] = useState([]);
@@ -72,10 +72,12 @@ function Dashboard() {
                 </h2>
                 <p>Bienvenido, <strong>{user?.nombre}</strong>. Aquí tienes tu planificación para hoy.</p>
             </div>
-
+                {user && !esStaff && user.hasActivePlan && user.diasRestantes <= 10 && (
+                    <SubscriptionAlert diasRestantes={user.diasRestantes} />
+                )}
             <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start' }}>
-                
-                {/* SECCIÓN PRINCIPAL: RUTINAS */}
+             
+
                 <section className="main-routine-section">
                     <div className="list-card admin-socios-dark" style={{ padding: '20px' }}>
                         <div className="section-header-list" style={{ border: 'none', marginBottom: '20px', padding: 0 }}>
@@ -111,7 +113,6 @@ function Dashboard() {
                     </div>
                 </section>
 
-                {/* SECCIÓN LATERAL: AVISOS */}
                 <AnnouncementsSidebar avisos={avisos} loading={loadingAvisos} />
             </div>
         </div>
