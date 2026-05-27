@@ -67,9 +67,11 @@ public class AuthController {
                 boolean tienePlanActivo = membresiaActiva.isPresent();
                 String nombrePlan = null;
                 Long diasRestantes = 0L;
+                Long planId = null;
                 if (tienePlanActivo) {
                         var m = membresiaActiva.get();
                         nombrePlan = m.getMembresia().getNombre();
+                        planId = m.getMembresia().getId();
                         diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), m.getFechaFin());
                         if (diasRestantes < 0) {
                                 m.setActivo(false);
@@ -88,7 +90,7 @@ public class AuthController {
                                 user.getGenero(),
                                 tienePlanActivo,
                                 nombrePlan,
-                                diasRestantes);
+                                diasRestantes, planId);
 
                 return ResponseEntity.ok(new AuthResponse(true, "Login exitoso", token, userDTO));
         }
@@ -128,10 +130,11 @@ public class AuthController {
                 boolean tienePlanActivo = membresiaActiva.isPresent();
                 String nombrePlan = null;
                 Long diasRestantes = 0L;
-
+                Long planId = null;
                 if (tienePlanActivo) {
                         var m = membresiaActiva.get();
                         nombrePlan = m.getMembresia().getNombre();
+                        planId = m.getMembresia().getId();
                         diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), m.getFechaFin());
 
                         if (diasRestantes < 0) {
@@ -151,6 +154,7 @@ public class AuthController {
                                 user.getGenero(),
                                 tienePlanActivo,
                                 nombrePlan,
-                                diasRestantes));
+                                diasRestantes,
+                                planId));
         }
 }

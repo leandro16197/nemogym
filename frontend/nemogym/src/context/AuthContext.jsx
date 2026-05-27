@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
           genero: data.genero,
           hasActivePlan: data.hasActivePlan,
           nombrePlan: data.nombrePlan,
-          diasRestantes: data.diasRestantes // <--- NUEVO
+          diasRestantes: data.diasRestantes 
         };
 
         localStorage.setItem('nemogym_user', JSON.stringify(updatedUserData));

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.nemogym.backend.repository.UsuarioMembresiaRepository;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -27,14 +28,14 @@ import java.util.stream.Collectors;
 public class AdminUserController {
 
     private final UserRepository userRepository;
-    private final SubscriptionRepository subscriptionRepository;
+    private final UsuarioMembresiaRepository usuarioMembresiaRepository;
 
     @Autowired
     private UsuarioService usuarioService;
 
-    public AdminUserController(UserRepository userRepository, SubscriptionRepository subscriptionRepository) {
+    public AdminUserController(UserRepository userRepository, UsuarioMembresiaRepository usuarioMembresiaRepository) {
         this.userRepository = userRepository;
-        this.subscriptionRepository = subscriptionRepository;
+        this.usuarioMembresiaRepository = usuarioMembresiaRepository;
     }
 
     @GetMapping
@@ -47,12 +48,16 @@ public class AdminUserController {
             @RequestParam(required = false) Long roleId) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-
         String searchParam = (search != null && !search.trim().isEmpty()) ? search : null;
-        String generoParam = (genero != null && !genero.trim().isEmpty()) ? genero : null;
-
-        Page<User> usuarios = userRepository.findByFilters(searchParam, generoParam, roleId, pageable);
-
+        com.nemogym.backend.enums.Genero generoEnum = null;
+        if (genero != null && !genero.trim().isEmpty()) {
+            try {
+                generoEnum = com.nemogym.backend.enums.Genero.valueOf(genero.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.err.println("Género inválido recibido: " + genero);
+            }
+        }
+        Page<User> usuarios = userRepository.findByFilters(searchParam, generoEnum, roleId, pageable);
         var data = usuarios.getContent().stream()
                 .map(this::mapToDTO)
                 .toList();
@@ -101,31 +106,30 @@ public class AdminUserController {
     }
 
     private UserDTO mapToDTO(User user) {
-        var subscription = subscriptionRepository.findActiveByEmail(user.getEmail());
+        var membresiaActiva = usuarioMembresiaRepository.findMembresiaActiva(user.getEmail());
 
-        boolean tienePlanActivo = subscription.isPresent();
+        boolean tienePlanActivo = membresiaActiva.isPresent();
         String nombrePlan = null;
         Long diasRestantes = 0L;
-
+        Long planId = null;
         if (tienePlanActivo) {
-            var s = subscription.get();
-            nombrePlan = s.getPlan().getName();
-            diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), s.getEndDate());
+            var m = membresiaActiva.get();
+            planId = m.getMembresia().getId();
+            nombrePlan = m.getMembresia().getNombre();
+            diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), m.getFechaFin());
             if (diasRestantes < 0) {
                 tienePlanActivo = false;
             }
         }
-
         return new UserDTO(
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
-                user.getRoles().stream()
-                        .map(role -> role.getName())
-                        .collect(Collectors.toSet()),
+                user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()),
                 user.getGenero(),
                 tienePlanActivo,
                 nombrePlan,
-                diasRestantes);
+                diasRestantes,
+                planId);
     }
 }

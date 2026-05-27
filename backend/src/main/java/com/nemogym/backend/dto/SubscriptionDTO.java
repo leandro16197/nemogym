@@ -40,7 +40,8 @@ public class SubscriptionDTO {
                 sub.getUser().getGenero(),
                 sub.isActive(),
                 this.planNombre,
-                this.diasRestantes);
+                this.diasRestantes,
+                sub.getPlan().getId());
     }
 
     public Long getId() {

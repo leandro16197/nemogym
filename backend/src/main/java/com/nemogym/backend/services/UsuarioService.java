@@ -38,10 +38,11 @@ public class UsuarioService {
 
                 boolean tienePlan = membresiaActiva != null;
                 String nombrePlan = tienePlan ? membresiaActiva.getMembresia().getNombre() : "SIN PLAN";
-
+                Long planId = null;
                 Long diasRestantes = 0L;
                 if (tienePlan) {
                         diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), membresiaActiva.getFechaFin());
+                        planId = membresiaActiva.getMembresia().getId();
                 }
 
                 Set<String> rolesNames = user.getRoles().stream()
@@ -56,6 +57,7 @@ public class UsuarioService {
                                 user.getGenero(),
                                 tienePlan,
                                 nombrePlan,
-                                diasRestantes);
+                                diasRestantes,
+                                planId);
         }
 }
